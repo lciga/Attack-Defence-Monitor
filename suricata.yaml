@@ -1,0 +1,62 @@
+%YAML 1.1
+---
+
+vars:
+  address-groups:
+    HOME_NET: "any"
+    EXTERNAL_NET: "any"
+  port-groups:
+    HTTP_PORTS: "80,8080,443,5050"
+    PG_PORTS: "5432"
+
+outputs:
+  - eve-log:
+      enabled: yes
+      filetype: regular
+      filename: eve.json
+      types:
+        - alert:
+            payload: yes            
+            payload-printable: yes    
+            packet: yes               
+            tagged-packets: yes
+        - http:
+            extended: yes             
+        - tls:
+            extended: yes                  
+
+  - http-log:
+      enabled: yes
+      filename: http.log
+      append: yes
+
+  - tls-log:
+      enabled: yes
+      filename: tls.log
+      append: yes
+
+  - pcap-log:
+      enabled: yes
+      filename: pgdb.pcap
+      limit: 1000mb
+      mode: normal
+      bpf-filter: "port 5432"
+
+logging:
+  default-log-level: info
+  outputs:
+    - console:
+        enabled: yes
+
+
+af-packet:
+  - interface: ens33
+    cluster-type: cluster_flow
+    defrag: yes
+
+app-layer:
+  protocols:
+    http:
+      enabled: yes
+      detection-ports:
+        dp: "80,8080,443,5050"
