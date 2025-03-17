@@ -1,0 +1,29 @@
+groups:
+- name: system_alerts
+  rules:
+  - alert: HighCpuUsage
+    expr: 100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 85
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Высокая загрузка CPU ({{ $value }}%)"
+      description: "CPU на {{ $labels.instance }} загружен на {{ $value }}%."
+
+  - alert: HighMemoryUsage
+    expr: (1 - (node_memory_MemAvailable_bytes / (node_memory_MemTotal_bytes))) * 100 > 80
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Высокое использование RAM ({{ $value }}%)"
+      description: "Память на {{ $labels.instance }} заполнена на {{ $value }}%."
+
+  - alert: InstanceDown
+    expr: up == 0
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      description: '{{ $labels.instance }} недоступен более 1 минуты.'
+      summary: 'Инстанс {{ $labels.instance }} недоступен'
